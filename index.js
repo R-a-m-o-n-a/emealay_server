@@ -23,7 +23,7 @@ app.use('/meals', mealRoutes);
 app.use('/settings', settingsRoutes);
 app.use('/users', usersRoutes);
 
-const ATLAS_URI = 'mongodb+srv://ramonap:emealadmin@emealaycluster.8oblc.mongodb.net/emealay?retryWrites=true&w=majority';
+const ATLAS_URI = process.env.MONGO_URI;
 const PORT = process.env.PORT || 5000;
 mongoose.connect(ATLAS_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => app.listen(PORT, () => console.log(`Server running on port: ${PORT}`)))
