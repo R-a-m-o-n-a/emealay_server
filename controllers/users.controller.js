@@ -76,11 +76,11 @@ export const updateUserMetadata = async (req, res) => {
 
   managementAPI.updateUserMetadata(params, newMetadata)
                .then(function (user) {
-                 console.log('user metadata updated.', user);
+                 // console.log('user metadata updated.', user);
                  res.status(200).json(user);
                })
                .catch(function (err) {
-                 console.log('error while updating user metadata', err);
+                 // console.log('error while updating user metadata', err);
                  res.status(404).json({ message: err.message });
                });
 }
@@ -92,11 +92,11 @@ export const updateUser = async (req, res) => {
 
   managementAPI.updateUser(params, newData)
                .then(function (user) {
-                 console.log('user updated.', user);
+                 // console.log('user updated.', user);
                  res.status(200).json(user);
                })
                .catch(function (err) {
-                 console.log('error while updating user', err);
+                 // console.log('error while updating user', err);
                  res.status(404).json({ message: err.message });
                });
 }

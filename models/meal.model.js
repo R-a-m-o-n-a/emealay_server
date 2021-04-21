@@ -7,7 +7,7 @@ const mealSchema = new mongoose.Schema({
   images: [{
     _id: String,
     name: String,
-    path: String,
+    url: String,
     isMain: Boolean,
     }],
   recipeLink: String,

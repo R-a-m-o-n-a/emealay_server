@@ -4,7 +4,8 @@ const imageSchema = mongoose.Schema({
   name: String,
   categoryName: String,
   categoryId: String,
-  path: String,
+  url: String,
+  cloudinaryPublicId: String,
   createdAt: {
     type: Date,
     default: new Date()
