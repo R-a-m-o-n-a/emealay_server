@@ -41,6 +41,9 @@ export const updateSettings = async (req, res) => {
       settingFound.set('contacts', newSettings.contacts);
       settingFound.set('language', newSettings.language);
       settingFound.set('prefersDarkMode', newSettings.prefersDarkMode);
+      settingFound.set('contactStartPage', newSettings.contactStartPage);
+      settingFound.set('mealCategories', newSettings.mealCategories);
+      settingFound.set('mealTags', newSettings.mealTags);
       settingFound.save().then(settingUpdated => {
         res.status(201).json({ 'info': 'Settings updated', settingUpdated })
       });
