@@ -56,7 +56,7 @@ export const updateMeal = async (req, res) => {
       meal.set('category', newMeal.category);
       meal.set('tags', newMeal.tags);
       meal.save().then(meal => {
-        res.status(201).json({ 'info': 'planItem updated', meal })
+        res.status(201).json({ 'info': 'meal updated', meal })
       });
     });
   } catch (error) {
@@ -79,7 +79,7 @@ export const setImageAsMain = async (req, res) => {
       })
       meal.set('images', newOrderImages);
       meal.save().then(meal => {
-        res.status(201).json({ 'info': 'updated main planItem image', meal })
+        res.status(201).json({ 'info': 'updated main image of meal ', meal })
       });
     });
   } catch (error) {
@@ -93,7 +93,7 @@ export const deleteMeal = async (req, res) => {
     if (err) {
       res.status(400).json({ 'info': `Deletion of meal ${id} failed`, 'message': err.message });
     } else {
-      res.status(201).json({ 'info': 'planItem deleted, id: ', id, meal })
+      res.status(201).json({ 'info': 'meal deleted, id: ', id, meal })
     }
   });
 }

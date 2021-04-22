@@ -53,7 +53,7 @@ export const uploadSingleImage = async (req, res) => {
     uploadOptions.transformation = { aspect_ratio: 1, gravity: "faces", crop: "fill" };
   }
   cloudinary.uploader.upload(image, uploadOptions).then((cloudinaryImage) => {
-    console.log('upload successful');
+    // console.log('upload successful');
     const { public_id, secure_url, url } = cloudinaryImage;
     const newImage = new Image({
       categoryName: category,
@@ -64,7 +64,7 @@ export const uploadSingleImage = async (req, res) => {
     });
     try {
       newImage.save().then(() => {
-        console.log('added image to ' + folderName, public_id, name);
+        // console.log('added image to ' + folderName, public_id, name);
         res.status(201).json({ 'message': 'successfully added new Image', 'Image': newImage })
       });
     } catch (error) {
@@ -79,7 +79,7 @@ async function copySingleImage(image, category, newId) {
   let returnImage = null;
   if (image.url) {
     await cloudinary.uploader.upload(image.url, { folder: category + '/' + newId }).then(async (cloudinaryImage) => {
-      console.log('upload successful');
+      // console.log('upload successful');
       const { public_id, secure_url, url } = cloudinaryImage;
       const newImage = new Image({
         categoryName: category,
@@ -109,13 +109,17 @@ export const copyImagesForCategory = async (req, res) => {
     if (err) {
       console.log('error in find', err);
     } else {
-      newImages = await Promise.all(foundImages.map(async (i) => {
-        return await copySingleImage(i, 'mealImages', newId)
-      }));
-      if (newImages.length > 0) {
-        res.status(201).json({ 'message': 'successfully copied Images', newImages });
+      if (foundImages && foundImages.length > 0) {
+        newImages = await Promise.all(foundImages.map(async (i) => {
+          return await copySingleImage(i, 'mealImages', newId)
+        }));
+        if (newImages.length > 0) {
+          res.status(201).json({ 'message': 'successfully copied Images', newImages });
+        } else {
+          res.status(400).json({ 'info': `copying images failed. Check log for more info` });
+        }
       } else {
-        res.status(400).json({ 'info': `copying images failed. Check log for more info` });
+        res.status(200).json({ 'message': 'no images had to be copied' });
       }
     }
   });
@@ -140,26 +144,27 @@ export const deleteSingleImage = async (req, res) => {
 export const deleteAllImagesFromCategory = async (req, res) => {
   let category = req.params.category;
   let id = req.params.id;
-  console.log('delete all images from ', category, id);
-  await Image.find({ categoryName: category, categoryId: id }, function (err, foundImages) {
+  // console.log('delete all images from ', category, id);
+  await Image.find({ categoryName: category, categoryId: id }, async function (err, foundImages) {
     if (err) {
       console.log('error in find', err);
     } else {
-      foundImages.forEach(i => {
-        cloudinary.uploader.destroy(i.cloudinaryPublicId).then((result) => {
-          console.log(i.name + ' deleted from cloudinary');
-        }).catch(error => {
+      await Promise.all(foundImages.map(async (i) => {
+        await cloudinary.uploader.destroy(i.cloudinaryPublicId).catch(error => {
           console.log('deletion of ' + i.name + ' from cloudinary failed because', error);
+        });
+      }));
+      cloudinary.api.delete_folder(category + '/' + id).catch(err => {
+        console.log('error on delete folder', err);
+      }).finally(() => {
+        Image.deleteMany({ categoryName: category, categoryId: id }, {}, function (err, deletionResult) {
+          if (err) {
+            res.status(400).json({ 'info': `Deletion of images from ${category} ${id} failed`, 'message': err.message });
+          } else {
+            res.status(201).json({ 'info': `images from ${category} with ${id} deleted`, deletionResult })
+          }
         });
       });
     }
   })
-  await cloudinary.api.delete_folder(category + '/' + id);
-  Image.deleteMany({ categoryName: category, categoryId: id }, {}, function (err, deletionResult) {
-    if (err) {
-      res.status(400).json({ 'info': `Deletion of images from ${category} ${id} failed`, 'message': err.message });
-    } else {
-      res.status(201).json({ 'info': `images from ${category} with ${id} deleted`, deletionResult })
-    }
-  });
 }
