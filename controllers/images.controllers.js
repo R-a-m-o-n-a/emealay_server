@@ -77,8 +77,9 @@ export const uploadSingleImage = async (req, res) => {
 
 async function copySingleImage(image, category, newId) {
   let returnImage = null;
+  const folder = category + '/' + newId;
   if (image.url) {
-    await cloudinary.uploader.upload(image.url, { folder: category + '/' + newId }).then(async (cloudinaryImage) => {
+    await cloudinary.uploader.upload(image.url, { folder: folder }).then(async (cloudinaryImage) => {
       // console.log('upload successful');
       const { public_id, secure_url, url } = cloudinaryImage;
       const newImage = new Image({
@@ -154,7 +155,8 @@ export const deleteAllImagesFromCategory = async (req, res) => {
           console.log('deletion of ' + i.name + ' from cloudinary failed because', error);
         });
       }));
-      cloudinary.api.delete_folder(category + '/' + id).catch(err => {
+      const folder = category + '/' + id;
+      cloudinary.api.delete_folder(folder).catch(err => {
         console.log('error on delete folder', err);
       }).finally(() => {
         Image.deleteMany({ categoryName: category, categoryId: id }, {}, function (err, deletionResult) {
