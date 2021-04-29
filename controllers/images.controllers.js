@@ -163,10 +163,37 @@ export const deleteAllImagesFromCategory = async (req, res) => {
           if (err) {
             res.status(400).json({ 'info': `Deletion of images from ${category} ${id} failed`, 'message': err.message });
           } else {
-            res.status(201).json({ 'info': `images from ${category} with ${id} deleted`, deletionResult })
+            res.status(201).json({ 'info': `images from ${category} with ${id} deleted`, deletionResult });
           }
         });
       });
     }
-  })
+  });
+}
+
+export const deleteAllImagesFromCategoryInternally = async (category, categoryId) => {
+  await Image.find({ categoryName: category, categoryId: categoryId }, async function (err, foundImages) {
+    if (err) {
+      console.log('error in find', err);
+    } else {
+      await Promise.all(foundImages.map(async (i) => {
+        await cloudinary.uploader.destroy(i.cloudinaryPublicId).catch(error => {
+          console.log('deletion of ' + i.name + ' from cloudinary failed because', error);
+        });
+      }));
+      const folder = category + '/' + categoryId;
+      console.log('trying to delete folder ' + folder);
+      cloudinary.api.delete_folder(folder).catch(err => {
+        console.log('error on delete folder', err);
+      }).finally(() => {
+        Image.deleteMany({ categoryName: category, categoryId: categoryId }, {}, function (err, deletionResult) {
+          if (err) {
+            console.log(`Deletion of images from ${category} ${categoryId} failed`, err.message);
+          } else {
+            console.log(deletionResult.n + ` images from ${category} with ${categoryId} deleted`);
+          }
+        });
+      });
+    }
+  });
 }

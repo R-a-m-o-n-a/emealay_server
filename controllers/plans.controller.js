@@ -103,3 +103,13 @@ export const deletePlan = async (req, res) => {
     }
   });
 }
+
+export const deleteAllPlansOfUser = async (userId) => {
+  Plan.deleteMany({ userId: userId }, {}, function (err) {
+    if (err) {
+      console.log('error on delete plans for user ' + userId, err);
+    } else {
+      console.log('plans for user ' + userId + ' deleted');
+    }
+  });
+}

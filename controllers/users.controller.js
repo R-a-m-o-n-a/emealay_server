@@ -3,6 +3,9 @@
  */
 import { ManagementClient } from 'auth0';
 import dotenv from 'dotenv';
+import { deleteSettingOfUser } from "./settings.controller.js";
+import { deleteAllMealsOfUser } from "./meals.controllers.js";
+import { deleteAllPlansOfUser } from "./plans.controller.js";
 
 dotenv.config();
 
@@ -97,6 +100,25 @@ export const updateUser = async (req, res) => {
                })
                .catch(function (err) {
                  // console.log('error while updating user', err);
+                 res.status(404).json({ message: err.message });
+               });
+}
+
+export const deleteUser = async (req, res) => {
+  const userId = req.params.id;
+  const params = { id: userId };
+
+  await deleteSettingOfUser(userId);
+  await deleteAllPlansOfUser(userId);
+  await deleteAllMealsOfUser(userId);
+
+  managementAPI.deleteUser(params)
+               .then(function () {
+                 console.log('user deleted for good.');
+                 res.status(200).json('account deleted');
+               })
+               .catch(function (err) {
+                 console.log('error while deleting user', err);
                  res.status(404).json({ message: err.message });
                });
 }

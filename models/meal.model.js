@@ -8,6 +8,7 @@ const mealSchema = new mongoose.Schema({
     _id: String,
     name: String,
     url: String,
+    cloudinaryPublicId: String,
     isMain: Boolean,
     }],
   recipeLink: String,

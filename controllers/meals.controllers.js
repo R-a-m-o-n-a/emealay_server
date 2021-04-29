@@ -1,5 +1,6 @@
 /** logic for meal routes */
 import Meal from "../models/meal.model.js";
+import { deleteAllImagesFromCategoryInternally } from "./images.controllers.js";
 
 export const getMeals = async (req, res) => {
   Meal.find().sort({ title: 1 }).exec((err, meals) => {
@@ -98,3 +99,21 @@ export const deleteMeal = async (req, res) => {
   });
 }
 
+export const deleteAllMealsOfUser = async (userId) => {
+  await Meal.find({ userId: userId }).sort({ title: 1 }).exec(async (err, meals) => {
+    if (err) {
+      console.log('error on finding meals to delete images for user ' + userId);
+    } else {
+      await Promise.all(meals.map(async (meal) => {
+        await deleteAllImagesFromCategoryInternally('mealImages', meal._id);
+      }));
+    }
+  });
+  Meal.deleteMany({ userId: userId }, {}, function (err) {
+    if (err) {
+      console.log('error on delete meals for user ' + userId, err);
+    } else {
+      console.log('meals for user ' + userId + ' deleted');
+    }
+  });
+}

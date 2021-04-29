@@ -11,6 +11,10 @@ const settingsSchema = mongoose.Schema({
     icon: Object,
   }],
   mealTags: [String],
+  createdAt: {
+    type: Date,
+    default: new Date()
+  },
 });
 
 const Settings = mongoose.model('Settings', settingsSchema);

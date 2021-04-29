@@ -23,12 +23,17 @@ export const getSettingsOfUser = async (req, res) => {
 
 export const addSettings = async (req, res) => {
   const givenSettings = req.body;
-  const newSettings = new Settings(givenSettings);
-  try {
-    await newSettings.save();
-    res.status(201).json({ 'message': 'successfully added new Settings', 'Settings': newSettings });
-  } catch (error) {
-    res.status(409).json({ message: error.message });
+  const { userId } = givenSettings;
+  if (userId) {
+    const newSettings = new Settings(givenSettings);
+    try {
+      await newSettings.save();
+      res.status(201).json({ 'message': 'successfully added new Settings', 'Settings': newSettings });
+    } catch (error) {
+      res.status(409).json({ message: error.message });
+    }
+  } else {
+    res.status(409).json({ 'message': 'cannot add settings for undefined userId' });
   }
 }
 
@@ -64,6 +69,16 @@ export const deleteSettings = async (req, res) => {
   });
 }
 
+export const deleteSettingOfUser = async (userId) => {
+  Settings.deleteOne({ userId: userId }, {}, function (err) {
+    if (err) {
+      console.log('error on delete settings for user ' + userId, err);
+    } else {
+      console.log('settings for user ' + userId + ' deleted');
+    }
+  });
+}
+
 export const updateUserContacts = async (req, res) => {
   const newContacts = req.body;
   const id = req.params.id;
@@ -77,7 +92,6 @@ export const updateUserContacts = async (req, res) => {
     res.status(400).json({ 'info': `Update of contacts for user ${id} failed`, 'message': error.message });
   }
 }
-
 
 export const updateUserDarkModePreference = async (req, res) => {
   const newDarkModePreference = req.body;
