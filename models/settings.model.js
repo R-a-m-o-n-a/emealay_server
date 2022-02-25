@@ -5,6 +5,7 @@ const settingsSchema = mongoose.Schema({
   contacts: [],
   language: String,
   prefersDarkMode: Boolean,
+  ownStartPageIndex: Number,
   contactStartPageIndex: Number,
   mealCategories: [{
     name: String,
