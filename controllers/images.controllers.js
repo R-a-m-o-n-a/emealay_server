@@ -46,6 +46,7 @@ export const uploadSingleImage = async (req, res) => {
     folder: folderName,
     tags: tags || [],
   };
+
   if (category === 'userProfile') {
     uploadOptions.folder = category;
     uploadOptions.public_id = categoryId;
@@ -63,15 +64,19 @@ export const uploadSingleImage = async (req, res) => {
       name,
     });
     try {
-      newImage.save().then(() => {
-        // console.log('added image to ' + folderName, public_id, name);
-        res.status(201).json({ 'message': 'successfully added new Image', 'Image': newImage })
+      // try to delete an already existing profile picture since it just gets replaced on cloudinary and then save the new one
+      Image.findOneAndDelete({categoryName: 'userProfile', cloudinaryPublicId: public_id}).then((deletedImaged) => {
+        // console.log('replaced', deletedImaged, 'with', newImage);
+        newImage.save().then(() => {
+          // console.log('added image to ' + folderName, public_id, name);
+          res.status(201).json({ 'message': 'successfully added new Image', 'Image': newImage })
+        });
       });
     } catch (error) {
       res.status(409).json({ message: error.message, errorDetails: 'upload successful, but database storage failed' });
     }
   }).catch((error) => {
-    res.status(409).json({ message: error.message, errorDetails: 'upload failed' });
+    res.status(409).json({ message: error.message, errorDetails: 'upload failed', errorMessage: error.message });
   });
 }
 
@@ -108,7 +113,7 @@ export const copyImagesForCategory = async (req, res) => {
 
   await Image.find({ categoryName: category, categoryId: oldId }, async function (err, foundImages) {
     if (err) {
-      console.log('error in find', err);
+      // console.log('error in find', err);
     } else {
       if (foundImages && foundImages.length > 0) {
         newImages = await Promise.all(foundImages.map(async (i) => {
@@ -148,7 +153,7 @@ export const deleteAllImagesFromCategory = async (req, res) => {
   // console.log('delete all images from ', category, id);
   await Image.find({ categoryName: category, categoryId: id }, async function (err, foundImages) {
     if (err) {
-      console.log('error in find', err);
+      // console.log('error in find', err);
     } else {
       await Promise.all(foundImages.map(async (i) => {
         await cloudinary.uploader.destroy(i.cloudinaryPublicId).catch(error => {

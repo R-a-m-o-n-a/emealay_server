@@ -117,3 +117,21 @@ export const deleteAllMealsOfUser = async (userId) => {
     }
   });
 }
+
+export const getNumberOfMealsOfUsers = async (req, res) => {
+  Meal.aggregate([
+    {
+      $group: {
+        _id: '$userId',
+        numberOfMeals: {
+          $count: {}
+        }
+      }
+    }]).exec((err, mealCounts) => {
+    if (err) {
+      res.status(404).json({ message: err });
+    } else {
+      res.status(200).json(mealCounts);
+    }
+  });
+}

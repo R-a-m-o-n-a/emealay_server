@@ -1,8 +1,9 @@
 // logic for plan routes
 import Plan from "../models/plan.model.js";
+import Meal from "../models/meal.model.js";
 
 export const getPlans = async (req, res) => {
-   Plan.find().sort({ hasDate: -1, date: 1, gotEverything: -1, title: 1 }).exec((err, plans) => {
+  Plan.find().sort({ hasDate: -1, date: 1, gotEverything: -1, title: 1 }).exec((err, plans) => {
     if (err) {
       res.status(404).json({ message: err.message });
     } else {
@@ -12,7 +13,7 @@ export const getPlans = async (req, res) => {
 }
 export const getPlansOfUser = async (req, res) => {
   let userId = req.params.userId;
-   Plan.find({userId: userId}).sort({ hasDate: -1, date: 1, gotEverything: -1, title: 1 }).exec((err, plans) => {
+  Plan.find({ userId: userId }).sort({ hasDate: -1, date: 1, gotEverything: -1, title: 1 }).exec((err, plans) => {
     if (err) {
       res.status(404).json({ message: err.message });
     } else {
@@ -65,23 +66,18 @@ export const updatePlan = async (req, res) => {
 }
 
 export const checkOrUncheckIngredient = async (req, res) => {
-  const {planId} = req.params;
+  const { planId } = req.params;
   let ingredient = req.body;
-  console.log('checking ', ingredient);
   try {
     Plan.findById(planId, function (err, plan) {
       let gotEverything = true;
-      const revisedIngredients = plan.missingIngredients;
+      const revisedIngredients = Array.from(plan.missingIngredients);
       revisedIngredients.forEach(i => {
         if (i.name === ingredient.name) {
-          console.log('yes, same!');
           i.checked = !i.checked;
-        } else {
-          console.log('nope');
         }
-        if(!i.checked) gotEverything = false;
+        if (!i.checked) gotEverything = false;
       });
-      console.log(revisedIngredients);
       plan.set('missingIngredients', revisedIngredients);
       plan.set('gotEverything', gotEverything);
       plan.save().then(plan => {
@@ -110,6 +106,25 @@ export const deleteAllPlansOfUser = async (userId) => {
       console.log('error on delete plans for user ' + userId, err);
     } else {
       console.log('plans for user ' + userId + ' deleted');
+    }
+  });
+}
+
+export const getNumberOfPlansOfUsers = async (req, res) => {
+  Plan.aggregate([
+    { $match: { $or: [{ hasDate: false }, { date: { $gte: new Date() } }] } }, // filter out past plans
+    {
+      $group: {
+        _id: '$userId',
+        numberOfPlans: {
+          $count: {}
+        }
+      }
+    }]).exec((err, planCounts) => {
+    if (err) {
+      res.status(404).json({ message: err });
+    } else {
+      res.status(200).json(planCounts);
     }
   });
 }

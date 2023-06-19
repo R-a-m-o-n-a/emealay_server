@@ -28,8 +28,8 @@ export const getAllUsers = async (req, res) => {
                  res.status(200).json(users);
                })
                .catch(function (err) {
-                 console.log('error when finding users', err);
-                 res.status(404).json({ message: error.message });
+                 // console.log('error when finding users', err);
+                 res.status(404).json({ message: err.message });
                });
 }
 
@@ -39,13 +39,12 @@ export const getUsersFromQuery = async (req, res) => {
   let wildcardQuery = query;
   if (wildcardQuery.length >= 3) wildcardQuery = '*' + query; // add wildcard to the front (needs at least 3 characters)
   wildcardQuery += '*'; // add wildcard to back, for query options see https://auth0.com/docs/users/user-search/user-search-query-syntax
-  /** metadata fields, like nickname, do not support wildcards yet. The nickname gets copied to the "normal" nickname field (and thus found als with wildcards),
+  /** metadata fields, like username, do not support wildcards yet. The username gets copied to the "normal" nickname field (and thus found als with wildcards),
    * only if the user is not logged in via OAuth. In that case, nicknames are invariable as they are set through the external Provider (like Google). */
 
   const capitalizedQuery = query.charAt(0).toUpperCase() + query.slice(1);
-  console.log(capitalizedQuery);
   const params = {
-    q: 'name:' + wildcardQuery + ' OR nickname:' + wildcardQuery + ' OR user_metadata.nickname:' + query + ' OR user_metadata.nickname:' + capitalizedQuery,
+    q: 'name:' + wildcardQuery + ' OR nickname:' + wildcardQuery + ' OR user_metadata.username:' + query + ' OR user_metadata.username:' + capitalizedQuery,
   };
   console.log(params);
   managementAPI.getUsers(params)
@@ -53,7 +52,7 @@ export const getUsersFromQuery = async (req, res) => {
                  res.status(200).json(users);
                })
                .catch(function (err) {
-                 console.log('error when finding users', err);
+                 // console.log('error when finding users', err);
                  res.status(404).json({ message: err.message });
                });
 }
@@ -66,7 +65,7 @@ export const getUserById = async (req, res) => {
                  res.status(200).json(user);
                })
                .catch(function (err) {
-                 console.log('error when finding user', err);
+                 // console.log('error when finding user', err);
                  res.status(404).json({ message: err.message });
                });
 

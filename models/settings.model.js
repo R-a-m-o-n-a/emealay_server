@@ -1,7 +1,10 @@
 import mongoose from 'mongoose';
 
 const settingsSchema = mongoose.Schema({
-  userId: String,
+  userId: {
+    type: String,
+    unique: true
+  },
   contacts: [],
   language: String,
   prefersDarkMode: Boolean,
