@@ -23,7 +23,8 @@ let managementAPI = new ManagementClient({
 });
 
 export const getAllUsers = async (req, res) => {
-  managementAPI.getUsers()
+  // todo: pagination per_page has max 100. need to make several requests (pages 0-maxusers)
+  managementAPI.getUsers({per_page: 100})
                .then(function (users) {
                  res.status(200).json(users);
                })
@@ -35,7 +36,7 @@ export const getAllUsers = async (req, res) => {
 
 export const getUsersFromQuery = async (req, res) => {
   let query = req.params.query;
-  console.log(query);
+
   let wildcardQuery = query;
   if (wildcardQuery.length >= 3) wildcardQuery = '*' + query; // add wildcard to the front (needs at least 3 characters)
   wildcardQuery += '*'; // add wildcard to back, for query options see https://auth0.com/docs/users/user-search/user-search-query-syntax
@@ -46,7 +47,6 @@ export const getUsersFromQuery = async (req, res) => {
   const params = {
     q: 'name:' + wildcardQuery + ' OR nickname:' + wildcardQuery + ' OR user_metadata.username:' + query + ' OR user_metadata.username:' + capitalizedQuery,
   };
-  console.log(params);
   managementAPI.getUsers(params)
                .then(function (users) {
                  res.status(200).json(users);
