@@ -17,6 +17,7 @@ const mealSchema = new mongoose.Schema({
     type: Date,
     default: new Date()
   },
+  isToTry: Boolean,
   category: String,
   tags: [],
 });

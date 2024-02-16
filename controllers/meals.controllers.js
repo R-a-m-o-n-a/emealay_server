@@ -55,6 +55,7 @@ export const updateMeal = async (req, res) => {
       meal.set('images', newMeal.images);
       meal.set('comment', newMeal.comment);
       meal.set('category', newMeal.category);
+      meal.set('isToTry', newMeal.isToTry);
       meal.set('tags', newMeal.tags);
       meal.save().then(meal => {
         res.status(201).json({ 'info': 'meal updated', meal })
