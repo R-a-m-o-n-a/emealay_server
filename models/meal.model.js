@@ -17,9 +17,10 @@ const mealSchema = new mongoose.Schema({
     type: Date,
     default: new Date()
   },
-  isToTry: Boolean,
   category: String,
   tags: [],
+  isPrivate: Boolean,
+  isToTry: Boolean,
 });
 
 const Meal = mongoose.model('Meal', mealSchema);
