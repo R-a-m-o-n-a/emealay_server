@@ -30,3 +30,5 @@ mongoose.connect(ATLAS_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .catch((error) => console.log(error.message));
 
 mongoose.set('useFindAndModify', false);
+
+module.exports = app;

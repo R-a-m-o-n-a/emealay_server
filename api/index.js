@@ -16,6 +16,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+app.get("/", (req, res) => res.send("Express on Vercel"));
 app.use('/uploads', express.static('uploads'));
 app.use('/plans', planRoutes);
 app.use('/images', imageRoutes);
@@ -30,3 +31,5 @@ mongoose.connect(ATLAS_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .catch((error) => console.log(error.message));
 
 mongoose.set('useFindAndModify', false);
+
+module.exports = app;
