@@ -31,4 +31,4 @@ mongoose.connect(ATLAS_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 
 mongoose.set('useFindAndModify', false);
 
-module.exports = app;
+export default app;
